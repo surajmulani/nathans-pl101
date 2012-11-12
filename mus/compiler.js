@@ -1,16 +1,19 @@
 var endTime = function(time, expr) {
-  if (expr.tag === 'note') {
-	return time + expr.dur;
-  } else if (expr.tag === 'seq') {
-	return endTime(endTime(time, expr.left), expr.right);
-  } else {
-	return Math.max(endTime(time, expr.left), endTime(time, expr.right));
+  switch (expr.tag) {
+	case "note":
+	  return time + expr.dur;
+	case "rest":
+	  return time + expr.dur;
+	case "seq":
+	  return endTime(endTime(time, expr.left), expr.right);
+	case "par":
+	  return Math.max(endTime(time, expr.left), endTime(time, expr.right));
   }
 };
 
 var compile = function (musexpr, startTime) {
   if (!startTime) startTime = 0;
-  if (musexpr.tag === 'note') {
+  if (musexpr.tag === 'note' || musexpr.tag === 'rest') {
 	musexpr.start = startTime;
 	return [ musexpr ];
   } else if (musexpr.tag === 'seq') {
@@ -29,7 +32,11 @@ var melody_mus = {
   left: {
 	tag: 'seq',
 	left: { tag: 'note', pitch: 'a4', dur: 250 },
-	right: { tag: 'note', pitch: 'b4', dur: 250 }
+	right: {
+	  tag: 'seq',
+	  left: { tag: 'note', pitch: 'b4', dur: 250 },
+	  right: { tag: 'rest', dur: 100 }
+	}
   },
   right: {
 	tag: 'seq',

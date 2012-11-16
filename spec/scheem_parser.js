@@ -50,3 +50,27 @@ describe("whitespaces", function () {
     assert.deepEqual(parse("   (\n\n\n+\t\n3  \t4)   "), output);
   });
 });
+
+describe("comments", function () {
+  it("should ignore line comments", function () {
+    assert.strictEqual(parse(";; a comment\n1"), 1);
+    assert.strictEqual(parse("1\n;; a comment"), 1);
+  });
+  it("should ignore comments inside an expression", function () {
+    var output = ["+", 1, 2];
+    assert.deepEqual(parse("(+ 1 ;; comment\n2)"), output);
+    assert.deepEqual(parse(";; comment\n (+ 1 2 ;; comment2\n)"), output);
+  });
+})
+
+describe("quotes", function () {
+  it("should parse atoms", function () {
+    assert.deepEqual(parse("'x", "QUOTE"), ["quote", "x"]);
+    assert.deepEqual(parse("' y", "QUOTE"), ["quote", "y"]);
+    assert.deepEqual(parse("'  1", "QUOTE"), ["quote", 1]);
+  });
+  it("should parse expressions", function () {
+    assert.deepEqual(parse("'(+ 3 4)", "QUOTE"), ["quote", ["+", 3, 4]]);
+    assert.deepEqual(parse("'\t(+ (* 4 5) 4)", "QUOTE"), ["quote", ["+", ["*", 4, 5], 4]]);
+  });
+})

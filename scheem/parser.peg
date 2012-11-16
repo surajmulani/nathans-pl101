@@ -11,7 +11,11 @@ ID =
     chars:validchar+
         { return chars.join(""); }
 
-atom = (INT / ID)
+QUOTE =
+    "'" e:start
+        { return ["quote", e]; }
+
+atom = (INT / ID / QUOTE)
 
 expression =
     atom
@@ -22,5 +26,6 @@ space_expression =
     whitespace+ e:expression
         { return e; }
 
-whitespace = [ \t\n\r]
+whitespace = [ \t\n\r] / comment
+comment = ";;" [^\n]* "\n"?
 whitespaces = whitespace*

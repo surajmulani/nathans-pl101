@@ -1,0 +1,26 @@
+start =
+    whitespaces e:expression whitespaces { return e; }
+
+INT =
+    n:[0-9]+ { return parseInt(n.join(""), 10); }
+
+validchar =
+    [0-9a-zA-Z_?!+\-=@#$%^&*/.]
+
+ID =
+    chars:validchar+
+        { return chars.join(""); }
+
+atom = (INT / ID)
+
+expression =
+    atom
+  / "(" whitespaces operator:expression operators:space_expression* whitespaces ")"
+        { return [operator].concat(operators); }
+
+space_expression =
+    whitespace+ e:expression
+        { return e; }
+
+whitespace = [ \t\n\r]
+whitespaces = whitespace*

@@ -1,0 +1,8 @@
+{ "name" : "pl-101",
+  "dependencies" : {
+    "pegjs" : "*",
+    "chai"  : "*",
+    "mocha" : "*"
+  },
+  "version" : "0.1.0",
+  "private" : "true" }

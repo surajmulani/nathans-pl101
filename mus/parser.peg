@@ -1,0 +1,58 @@
+start =
+    whitespaces es:exprs whitespaces
+        { return es.reduce(function (e1, e2) {
+            return { tag : 'seq', left : e1, right : e2 };
+          });
+        }
+  / whitespaces e:expr whitespaces { return e; }
+
+exprs =
+    e:expr whitespaces es:moreExprs whitespaces
+        { return [e].concat(es); }
+
+moreExprs =
+    e:expr whitespaces es:moreExprs whitespaces
+        { return [e].concat(es); }
+  / expr
+
+expr = (note / seq / par / repeat / rest)
+
+number = n:[0-9]+       { return parseInt(n.join(""), 10); }
+pitch = p:([a-g][0-8])  { return p.join(""); }
+whitespace = [ \t\n\r]
+whitespaces = whitespace*
+    
+note =
+    notePitch:pitch "[" duration:number "]"
+        { return {
+            tag : 'note',
+            pitch : notePitch,
+            dur : duration
+          };
+        }
+
+rest =
+    "!" whitespaces duration:number
+        { return { tag : 'rest', dur : duration }; }
+
+seq =
+    "[" singleton:expr "]"
+        { return singleton; }
+  / "[" sequence:exprs "]"
+        { return sequence.reduce(function (e1, e2) {
+            return { tag : 'seq', left : e1, right : e2 };
+          });
+        }
+
+par =
+    "(" singleton:expr ")"
+        { return singleton; }
+  / "(" sequence:exprs ")"
+        { return sequence.reduce(function (e1, e2) {
+            return { tag : 'par', left : e1, right : e2 };
+          });
+        }
+
+repeat =
+    "{" sect:start ":" whitespaces times:number whitespaces "}"
+        { return { tag : 'repeat', section : sect, count : times }; }

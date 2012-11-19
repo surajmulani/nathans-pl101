@@ -5,8 +5,10 @@ if (typeof module !== 'undefined') {
       assert = require('chai').assert,
       path = require('path'),
       fs = require('fs'),
-      evalScheem = require(
-          path.join(__dirname, '../scheem.js')).evalScheem,
+      scheem = require(
+          path.join(__dirname, "../scheem.js")),
+      evalScheem = scheem.evalScheem,
+      initialEnv = scheem.initialEnv,
       parse = PEG.buildParser(fs.readFileSync(
             path.join(__dirname, '../parser.peg'), 'utf-8')).parse;
 } else {
@@ -35,7 +37,7 @@ suite("numbers", function () {
 });
 
 suite("variables", function () {
-  var env = { bindings : { 'x' : 4, 'y' : 5 }, outer : { } };
+  var env = { bindings : { 'x' : 4, 'y' : 5 }, outer : initialEnv };
   var env2 = { bindings : {}, outer : env };
   test("lookup variables", function () {
     assert.equal(evalScheem("x", env), 4);

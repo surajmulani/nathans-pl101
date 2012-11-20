@@ -9,13 +9,36 @@ var evalSequence = function (seq, env) {
 
 var evalIf = function (expr, env) {
   var eq = evalScheem(expr[1], env);
-  return eq ? evalScheem(expr[2], env) : evalScheem(expr[3], env);
+  return eq !== '#f' ? evalScheem(expr[2], env) : evalScheem(expr[3], env);
 };
 
 var evalArgs = function(args, env) {
   return args.map(function (arg) {
     return evalScheem(arg, env);
   });
+};
+
+var evalLambda = function (expr, env) {
+  var params = expr[1], body = expr[2];
+  return function () {
+    // make a new environment, bind new parameters and
+    // eval the body inside new environment.
+    var newEnv = { bindings : {}, outer : env };
+    for (i = 0; i < params.length; i += 1) {
+      newEnv.bindings[params[i]] = arguments[i];
+    }
+    return evalScheem(body, newEnv);
+  };
+};
+
+var evalDefine = function (expr, env) {
+  var _var = expr[1], body = expr[2];
+  if (_var instanceof Array) { // assume a function definition
+    var func = evalLambda(["lambda", _var.slice(1), body], env);
+    add_binding(_var[0], func, env);
+  } else { // otherwise, evaluate body and add a binding in the env.
+    add_binding(_var, evalScheem(body, env), env);
+  }
 };
 
 // --- environment operations ---
@@ -38,22 +61,42 @@ var add_binding = function (_var, value, env) {
 
 var update = function (_var, value, env) {
   if (!env || !env.hasOwnProperty('bindings')) {
-    throw("Unbound variable - " + v);
-  } else if (env.bindings.hasOwnProperty(v)) {
+    throw("Unbound variable - " + _var);
+  } else if (env.bindings.hasOwnProperty(_var)) {
     env.bindings[_var] = value;
   } else {
     return update(_var, value, env.outer);
   }
 };
 
+// clone an environment's bindings and outer environment
+var cloneEnv = function (env) {
+  var newEnv = { };
+  if (env.hasOwnProperty('bindings')) {
+    newEnv.bindings = { };
+    for (key in env.bindings) {
+      newEnv.bindings[key] = env.bindings[key];
+    }
+  } if (env.hasOwnProperty('outer')) {
+    newEnv.outer = cloneEnv(env.outer);
+  }
+  return newEnv;
+};
+
 var constants = {
-  "#t" : true, "#f" : false, "nil" : []
+  '#t' : '#t', '#f' : '#f', "nil" : []
 };
 
 var specialForms = {
   "begin" : function (expr, env) { return evalSequence(expr.slice(1), env); },
   "quote" : function (expr, env) { return expr[1]; },
-  "if" : evalIf
+  "if" : evalIf,
+  "lambda" : evalLambda,
+  "define" : evalDefine,
+  "set!" : function (expr, env) {
+    var _var = expr[1], value = evalScheem(expr[2], env);
+    update(_var, value, env);
+  }
 };
 
 
@@ -70,6 +113,15 @@ var initialEnv = { bindings :
     "<" : function (x, y) { return x < y ? '#t' : '#f' }
   },
     outer : { }
+};
+
+// clone the initial environment
+var initialClone = cloneEnv(initialEnv);
+
+var clearEnv = function () {
+  // set up a fresh environment with default functionality.
+  initialEnv = initialClone;
+  initialClone = cloneEnv(initialEnv);
 };
 
 
@@ -94,4 +146,5 @@ var evalScheem = function (expr, env) {
 if (typeof module !== 'undefined') {
   module.exports.evalScheem = evalScheem;
   module.exports.initialEnv = initialEnv;
+  module.exports.clearEnv = clearEnv;
 }

@@ -69,6 +69,11 @@ suite("lambda", function () {
     assert.equal(evalScheem([["lambda", [], 2]]), 2);
     assert.equal(evalScheem([["lambda", [], ["+", 3, 4]]]), 7);
   });
+  test("nested lambda", function () {
+    var nested = ["lambda", ["x"],
+                  [["lambda", ["y"], ["+", "x", "y"]], 5]]
+    assert.equal(evalScheem([nested, 5]), 10);
+  });
 });
 
 suite("define-lambda", function () {
@@ -136,4 +141,26 @@ suite("return values", function () {
     evalScheem(["define", "a", ["make-account", 100]]);
     assert.equal(evalScheem(["a", 20]), 80);
   })
+});
+
+suite("Let", function () {
+  test("no bindings", function () {
+    assert.equal(evalScheem(["let", [], 5]), 5);
+    assert.equal(evalScheem(["let", [], ["quote", "x"]]), "x");
+  });
+  test("one binding", function () {
+    assert.equal(
+      evalScheem(["let", [["x", 5]], ["+", "x", 5]]),
+      10
+      );
+  });
+  test("let inside lambda", function () {
+    assert.equal(
+      evalScheem([["lambda", ["x"],
+                    ["let", [["y", ["+", "x", 5]]],
+                        ["*", "y", 2]]],
+                  5]),
+      20
+      );
+  });
 });

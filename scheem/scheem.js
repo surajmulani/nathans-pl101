@@ -41,6 +41,15 @@ var evalDefine = function (expr, env) {
   }
 };
 
+var evalLet = function (expr, env) {
+  // expand (let (bindings) body) to ((lambda (params) body) args)
+  var params = expr[1].map(function (binding) { return binding[0]; });
+  var args = expr[1].map(function (binding) { return binding[1]; });
+  var body = expr[2];
+  var lambda = ["lambda", params, body];
+  return evalScheem.call(null, [lambda].concat(args), env);
+};
+
 // --- environment operations ---
 // lookup variable in an environment
 var lookup = function (v, env) {
@@ -96,7 +105,8 @@ var specialForms = {
   "set!" : function (expr, env) {
     var _var = expr[1], value = evalScheem(expr[2], env);
     update(_var, value, env);
-  }
+  },
+  "let" : evalLet
 };
 
 

@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="css/codemirror.css">
+        <link rel="stylesheet" type="text/css" href="css/livetest.css">
+        <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+        <script src="js/codemirror.js"></script>
+        <script src="js/scheme/scheme.js"></script>
+        <script src="https://raw.github.com/surajmulani/nathans-pl101/master/scheem/parser.js"></script>
+        <script src="https://raw.github.com/surajmulani/nathans-pl101/master/scheem/scheem.js"></script>
+    </head>
+    <body>
+        <div id="content-area" class="container">
+            <div id="sidebar">
+                <h3>Examples</h3>
+                <ul id="examples">
+                    <li><h4><a href="#">Arithmetic</a></h4></li>
+                    <ul id="arithmetic">
+                        <li><a href="#" class="example" id="arith1">Basic Arithmetic</a></li>
+                    </ul>
+
+                    <li><h4><a href="#">Lists</a></h4></li>
+                    <ul id="lists">
+                        <li><a href="#" class="example" id="map">Map</a></li>
+                    </ul> 
+
+                    <li><h4><a href="#">Functions</a></h4></li>
+                    <ul id="functions">
+                        <li><a href="#" class="example" id="square">Square</a></li>
+                        <li><a href="#" class="example" id="lambda">Lambda</a></li>
+                    </ul>
+
+                    <li><h4><a href="#" class="example"
+                            id="factorial">Factorial</a></h4></li>
+                    <li><h4><a href="#" class="example"
+                            id="fibonacci">Fibonacci</a></h4></li>
+                </ul>
+            </div>
+            <textarea id="editor"></textarea>
+            <input id="run" type="button" value="Run" />
+            <div id="output"></div>
+            </form>
+            <br>
+        </div>
+    </body>
+    <script src="js/console.js"></script>
+</html>

@@ -1,14 +1,15 @@
-var PEG = require('pegjs'),
-    chai = require('chai'),
-    expect = chai.expect,
-    assert = chai.assert,
-    should = chai.should(),
-    path = require('path'),
-    fs = require('fs');
-
-var scheemPeg = path.join(__dirname, '../scheem/parser.peg');
-var data = fs.readFileSync(scheemPeg, 'utf-8');
-var parse = PEG.buildParser(data).parse;
+if (typeof module !== 'undefined') {
+  var PEG = require('pegjs'),
+      assert = require('chai').assert,
+      path = require('path'),
+      fs = require('fs'),
+      scheemPeg = path.join(__dirname, '../scheem/parser.peg'),
+      data = fs.readFileSync(scheemPeg, 'utf-8'),
+      parse = PEG.buildParser(data).parse;
+} else {
+  var parse = SCHEEM.parse;
+  var assert = chai.assert;
+}
 
 describe("singleton atoms", function () {
   it("should parse 1 as a number", function () {
